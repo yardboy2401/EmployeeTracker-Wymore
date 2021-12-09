@@ -1,7 +1,8 @@
+//requires for mysql2/inquirer/console.table
 const mysql = require ('mysql2');
 const inquirer = require("inquirer");
 const cTable = require('console.table');
-
+//require dotenv to hide MySQL password
 require('dotenv').config();
 
 // Connect to database
@@ -21,6 +22,7 @@ con.connect(err => {
   init();
 });
 
+//init function with initial display for application and then load main menu
 function init() {
   console.log("********************************************")
   console.log("*                                          *")
@@ -32,6 +34,7 @@ function init() {
   loadMainMenu();
 }
 
+//loads list of initial menu items for application
 function loadMainMenu() {
   inquirer.prompt([
     {
@@ -68,6 +71,10 @@ function loadMainMenu() {
           value: "addDepartment"
         },
         {
+          name: "View department budgets",
+          value: "viewBudgets"
+        },
+        {
           name: "Quit",
           value: "quit"
         }
@@ -97,6 +104,9 @@ function loadMainMenu() {
         break;
       case "addDepartment":
         addDepartment();
+        break;
+      case "viewBudgets":
+        viewBudgets();
         break;
       case "quit":
         quit();
@@ -363,6 +373,63 @@ addRole = () => {
 
 
 viewDepartments = () => {
+  const sqlQuery = (`SELECT * from department`);
+
+  con.query(sqlQuery, (err, rows) => {
+    if(err) throw err;
+    console.table(rows);
+    loadMainMenu();
+    });
+};
+
+addDepartment = () => {
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "department",
+      message: "What is the name of the department you would like to add?",
+      validate: (department) => {
+        if(department) {
+          return true;
+        } else {
+          console.log('Please enter a valid department name!');
+          return false;
+        }
+      }
+    }
+  ])
+  .then(answer => {
+    const department = answer.department;
+    console.log(department)
+    params = [];
+    params.push(department);
+
+    const sqlData = `INSERT INTO department(name)
+                    VALUES (?)`;
+
+    con.query(sqlData, params, (err, result) => {
+      if(err) throw err;
+      console.log("Added" + answer.department + " to departments!")
+
+      viewDepartments();
+    })
+  });
+};
+
+viewBudgets = () => {
+  console.log('\nDisplaying Budgets by Department...\n');
+
+  const sqlData = `SELECT department_id AS id,
+              department.name AS department,
+              SUM (salary) AS budget
+              FROM role
+              JOIN department ON role.department_id = department.id GROUP BY department_id`;
+  con.query(sqlData, (err, rows) => {
+    if (err) throw err;
+    console.table(rows);
+
+    loadMainMenu();
+  })
 
 }
 
