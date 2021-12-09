@@ -120,6 +120,7 @@ function loadMainMenu() {
 
 //View all employees function
 viewEmployees = () => {
+  console.log('\nDisplaying all employees...\n')
   //SQL query to pull data and join from all 3 tables
   const sqlQuery = `SELECT employee.id, 
               employee.first_name,
@@ -308,6 +309,7 @@ updateRole = () => {
 };
 
 viewRoles = () => {
+  console.log('\nDisplay all employee roles...\n')
   const sqlQuery = `SELECT role.id, 
   role.title,
   role.salary,
@@ -393,6 +395,7 @@ addRole = () => {
 };
 
 viewDepartments = () => {
+  console.log('\nDisplaying all departments...\n')
   const sqlQuery = `SELECT * from department`;
 
   con.query(sqlQuery, (err, rows) => {
