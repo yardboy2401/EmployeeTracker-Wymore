@@ -401,18 +401,24 @@ addRole = () => {
     });
 };
 
+//view departments function
 viewDepartments = () => {
   console.log('\nDisplaying all departments...\n')
   const sqlQuery = `SELECT * from department`;
 
+  //sql query to select all from department table and console.table to the terminal
   con.query(sqlQuery, (err, rows) => {
     if (err) throw err;
     console.table(rows);
+
+    //load main menu again
     loadMainMenu();
   });
 };
 
+//add department function
 addDepartment = () => {
+  //inquirer input question for department to add
   inquirer
     .prompt([
       {
@@ -429,11 +435,14 @@ addDepartment = () => {
         },
       },
     ])
+    //push answer from question to params array
     .then((answer) => {
       const department = answer.department;
       console.log(department);
       params = [];
       params.push(department);
+
+      //sql query to insert params array into department table name column
 
       const sqlData = `INSERT INTO department(name)
                     VALUES (?)`;
@@ -442,14 +451,17 @@ addDepartment = () => {
         if (err) throw err;
         console.log("Added" + answer.department + " to departments!");
 
+          //display departments with new one added
         viewDepartments();
       });
     });
 };
 
+//function to view department budgets
 viewBudgets = () => {
   console.log("\nDisplaying Budgets by Department...\n");
 
+    //sql query to select department_id/name from department table and sum salary from role table and join together for report
   const sqlData = `SELECT department_id AS id,
               department.name AS department,
               SUM (salary) AS budget
@@ -463,7 +475,7 @@ viewBudgets = () => {
   });
 };
 
-// Exit the application
+// exit the application
 function quit() {
   console.log("Goodbye! Have a nice day!");
   process.exit();
