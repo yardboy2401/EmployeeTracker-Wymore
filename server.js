@@ -2,14 +2,17 @@
 const mysql = require("mysql2");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
+
 //require dotenv to hide MySQL password
 require("dotenv").config();
 
 // Connect to database
 const con = mysql.createConnection({
   host: "localhost",
+  
   // MySQL username,
   user: process.env.DB_USER,
+  
   // MySQL password
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
@@ -30,7 +33,7 @@ function init() {
   console.log("*                                          *");
   console.log("********************************************");
   loadMainMenu();
-}
+};
 
 //loads list of initial menu items for application
 function loadMainMenu() {
@@ -116,7 +119,7 @@ function loadMainMenu() {
           break;
       }
     });
-}
+};
 
 //View all employees function
 viewEmployees = () => {
@@ -324,7 +327,9 @@ updateRole = () => {
   });
 };
 
+//view roles function
 viewRoles = () => {
+  //query to grab role.id/title/salary/department.name and join together for displaying in terminal
   console.log('\nDisplay all employee roles...\n')
   const sqlQuery = `SELECT role.id, 
   role.title,
@@ -332,14 +337,19 @@ viewRoles = () => {
   department.name AS department FROM role
   INNER JOIN department ON role.department_id = department.id`;
 
+  //take sqlQuery data and console.table to terminal with it
   con.query(sqlQuery, (err, rows) => {
     if (err) throw err;
     console.table(rows);
+    //reload main menu again
     loadMainMenu();
   });
 };
 
+//addRole function
 addRole = () => {
+
+  //inquirer input questions for name of new role and salary of new role
   inquirer
     .prompt([
       {
@@ -350,7 +360,7 @@ addRole = () => {
           if (role) {
             return true;
           } else {
-            console.log("Please enter a first name!");
+            console.log("Please enter a valid role!");
             return false;
           }
         },
@@ -369,19 +379,20 @@ addRole = () => {
         },
       },
     ])
+    //take answers and insert into params array
     .then((answer) => {
       const params = [answer.role, answer.salary];
-
+      //sql query to gram name and id from department table
       const departmentQuery = `SELECT name, id FROM department`;
 
       con.query(departmentQuery, (err, data) => {
         if (err) throw err;
-
+        //.map() on department to get id/name for inquirer question
         const departments = data.map(({ id, name }) => ({
           name: name,
           value: id,
         }));
-
+        //inquirer question for role's department with list of database departments as answers
         inquirer
           .prompt([
             {
@@ -391,18 +402,20 @@ addRole = () => {
               choices: departments,
             },
           ])
+          //take answer from question above and push to params array
           .then((answer) => {
             const department = answer.department;
             console.log(department);
             params.push(department);
 
+              //sql query to insert new role into role table
             const sqlData = `INSERT INTO role(title, salary, department_id)
                           VALUES (?, ?, ?)`;
 
             con.query(sqlData, params, (err, result) => {
               if (err) throw err;
               console.log("Added" + answer.role + " to roles!");
-
+              //run view roles function to see new role added
               viewRoles();
             });
           });
@@ -488,4 +501,4 @@ viewBudgets = () => {
 function quit() {
   console.log("Goodbye! Have a nice day!");
   process.exit();
-}
+};
