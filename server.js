@@ -188,6 +188,7 @@ addEmployee = () => {
         //take roles data from query and .map() the data to formulate list of roles for next inquirer question
         const roles = data.map(({ id, title }) => ({ name: title, value: id }));
 
+        //inquirer question to select the role from list
         inquirer
           .prompt([
             {
@@ -197,22 +198,25 @@ addEmployee = () => {
               choices: roles,
             },
           ])
+          
+          //take the selection from inquirer and push to params array
           .then((roleChoice) => {
             const role = roleChoice.role;
             params.push(role);
-
+            
+            //SQL query to select all from employee table
             const managerQuery = `SELECT * FROM employee`;
 
             con.query(managerQuery, (err, data) => {
               if (err) throw err;
 
+              //.map() to grab id, first and last name from employee table
               const managers = data.map(({ id, first_name, last_name }) => ({
                 name: first_name + " " + last_name,
                 value: id,
               }));
 
-              //console.log(managers);
-
+              //inquirer question to ask manager with list being managers from database
               inquirer
                 .prompt([
                   {
@@ -222,13 +226,16 @@ addEmployee = () => {
                     choices: managers,
                   },
                 ])
+                
+                //take selection from question and push to params array
                 .then((managerChoice) => {
                   const manager = managerChoice.manager;
                   params.push(manager);
-
+                  
+                  //SQL statement to add a new entry to employee table
                   const sqlData = `INSERT INTO employee(first_name, last_name, role_id, manager_id)
                               VALUES (?, ?, ?, ?)`;
-
+                  
                   con.query(sqlData, params, (err, result) => {
                     if (err) throw err;
                     console.log("Employee Added!");
