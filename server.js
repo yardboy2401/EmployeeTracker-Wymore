@@ -249,9 +249,12 @@ addEmployee = () => {
     });
 };
 
+//update Role function
 updateRole = () => {
+  //select all from employee table
   const employeesQuery = `SELECT * FROM employee`;
 
+    //taking query results and .map() them to get id, first and last name for inquirer question
   con.query(employeesQuery, (err, data) => {
     if (err) throw err;
 
@@ -269,13 +272,16 @@ updateRole = () => {
           choices: employees,
         },
       ])
+      //take answer from inquirer and push to params array
       .then((employeeChoice) => {
         const emp = employeeChoice.name;
         const params = [];
         params.push(emp);
 
+          //sql query to select all from role
         const roleSql = `SELECT * FROM role`;
 
+          //query results and then .map() on table data to form id/title for inquirer question
         con.query(roleSql, (err, data) => {
           if (err) throw err;
 
@@ -284,6 +290,7 @@ updateRole = () => {
             value: id,
           }));
 
+          //inquirer to ask employee's new role question with database roles as possible answers
           inquirer
             .prompt([
               {
@@ -293,6 +300,7 @@ updateRole = () => {
                 choices: roles,
               },
             ])
+            //taking answer from inquirer and pushing to params array
             .then((roleChoice) => {
               let role = roleChoice.role;
               params.push(role);
@@ -301,6 +309,7 @@ updateRole = () => {
               params[0] = role;
               params[1] = employee;
 
+                //update employee role in database with params array data
               const sqlData = `UPDATE employee SET role_id = ? WHERE id = ?`;
 
               con.query(sqlData, params, (err, result) => {
