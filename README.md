@@ -11,7 +11,7 @@ Your assignment this week is to build a command-line application from scratch to
 - MySQL database
 
 ## Link to GitHub main project
-https://github.com/yardboy2401/week12-employeetracker-wymore
+https://github.com/yardboy2401/EmployeeTracker-Wymore
 
 ## Link to Walkthrough Video
 https://drive.google.com/file/d/1UpRmj-U4OW26_9Q4pbeDKNdlS28N-pq4/view?usp=sharing
